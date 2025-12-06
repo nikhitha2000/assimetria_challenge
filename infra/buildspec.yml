@@ -1,0 +1,55 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "us-east-1"
+    AWS_ACCOUNT_ID: "YOUR_ACCOUNT_ID"  # Replace with your AWS Account ID
+    ECR_BACKEND_REPO: "blog-backend"
+    ECR_FRONTEND_REPO: "blog-frontend"
+  secrets-manager:
+    HUGGINGFACE_API_KEY: "blog/huggingface-api-key"  # Optional: Store in AWS Secrets Manager
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Build started on `date`
+      - echo Building the Docker images...
+
+  build:
+    commands:
+      # Build Backend Image
+      - echo Building backend image...
+      - cd backend
+      - docker build -t $ECR_BACKEND_REPO:$IMAGE_TAG .
+      - docker tag $ECR_BACKEND_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_BACKEND_REPO:$IMAGE_TAG
+      - docker tag $ECR_BACKEND_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_BACKEND_REPO:latest
+      
+      # Build Frontend Image
+      - echo Building frontend image...
+      - cd ../frontend
+      - docker build --build-arg REACT_APP_API_URL=$REACT_APP_API_URL -t $ECR_FRONTEND_REPO:$IMAGE_TAG .
+      - docker tag $ECR_FRONTEND_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_FRONTEND_REPO:$IMAGE_TAG
+      - docker tag $ECR_FRONTEND_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_FRONTEND_REPO:latest
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      # Push Backend Image
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_BACKEND_REPO:$IMAGE_TAG
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_BACKEND_REPO:latest
+      # Push Frontend Image
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_FRONTEND_REPO:$IMAGE_TAG
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_FRONTEND_REPO:latest
+      - echo Writing image definitions file...
+      - printf '{"ImageTag":"%s"}' $IMAGE_TAG > imageTag.json
+
+artifacts:
+  files:
+    - imageTag.json
+
+
