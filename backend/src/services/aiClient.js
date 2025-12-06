@@ -23,9 +23,9 @@ class AIClient {
           inputs: prompt,
           parameters: {
             max_length: 400, // Generate reasonable length content
-            temperature: 0.9,
-            top_p: 0.9,
-            return_full_text: false
+            temperature: 0.9,//controls creativity 
+            top_p: 0.9,//AI to consider only the top 90% most likely next words.
+            return_full_text: false//cleaner output
           }
         },
         {

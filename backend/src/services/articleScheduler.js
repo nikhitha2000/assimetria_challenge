@@ -18,6 +18,7 @@ function startScheduler() {
 
   // Generate one article per day at 2:00 AM UTC
   // Cron format: minute hour day month day-of-week
+  // minute,hour,date,month,day of week
   scheduledJob = cron.schedule('0 2 * * *', async () => {
     console.log('⏰ Daily article generation triggered');
     try {

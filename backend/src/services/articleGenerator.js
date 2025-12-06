@@ -6,7 +6,6 @@ class ArticleGenerator {
   constructor() {
     console.log('DEBUG: ArticleGenerator sees HUGGINGFACE_API_KEY =', process.env.HUGGINGFACE_API_KEY ? '[SET]' : '[NOT SET]');
     const apiKey = process.env.HUGGINGFACE_API_KEY;
-    
     if (!apiKey) {
       console.warn('⚠️ HUGGINGFACE_API_KEY not set. Will use fallback articles.');
       this.aiClient = null;
