@@ -34,10 +34,6 @@ function startScheduler() {
 
   console.log('✅ Article scheduler configured (daily at 2:00 AM UTC)');
 
-  // Ensure we have at least 3 articles on startup
-  generator.ensureMinimumArticles(3).catch(err => {
-    console.error('❌ Error ensuring minimum articles:', err);
-  });
 }
 
 /**

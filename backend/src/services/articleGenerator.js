@@ -1,6 +1,6 @@
 require("dotenv").config();
 const AIClient = require("./aiClient");
-const Article = require("../models/Article");
+const Article = require("../models/Article"); // Your PostgreSQL model
 
 class ArticleGenerator {
   constructor() {
@@ -18,10 +18,10 @@ class ArticleGenerator {
       this.aiClient = new AIClient(apiKey);
     }
   }
+
   /**
    * Generate and save a new article
    */
-
   async generateAndSave(topic = null) {
     try {
       console.log("📝 Starting article generation...");
@@ -29,7 +29,6 @@ class ArticleGenerator {
       if (this.aiClient) {
         // Try to generate using AI
         try {
-          // 🛑 AIClient now returns { newArticle, fallbackArticles }
           const result = await this.aiClient.generateArticle(topic);
 
           // Check if AI succeeded or failed and returned fallback content
@@ -40,6 +39,7 @@ class ArticleGenerator {
             result.fallbackArticles &&
             result.fallbackArticles.length > 0
           ) {
+            // Use the last fallback article if generation failed
             articleToSave =
               result.fallbackArticles[result.fallbackArticles.length - 1];
           } else {
@@ -50,7 +50,7 @@ class ArticleGenerator {
           console.error(
             "❌ AI generation failed, using fallback:",
             error.message
-          ); // 🛑 Hard fallback for non-503 errors (e.g., 401, network issue) 🛑
+          ); 
           // Recreate a generic failure article using the simplest format
           articleToSave = {
             title: "AI Service Offline or Unauthorized",
@@ -59,10 +59,11 @@ class ArticleGenerator {
           };
         }
       } else {
-       
+        
         console.log("⚠️ No API key configured, using generic fallback article");
+        // Get fallback article (assuming getFallbackArticle returns an array, and you want the last one)
         articleToSave = new AIClient(null).getFallbackArticle().pop();
-      }  
+      } 
 
       const article = await Article.create(articleToSave);
       console.log(
@@ -73,22 +74,24 @@ class ArticleGenerator {
       console.error("❌ Error generating article:", error);
       throw error;
     }
-  } 
+  }
 
-  async ensureMinimumArticles(count = 3) {
-    try {
-      const currentCount = await Article.count();
-      const needed = Math.max(0, count - currentCount);
-      if (needed > 0) {
-        console.log(`📚 Generating ${needed} initial articles...`);
-        for (let i = 0; i < needed; i++) {
-          await this.generateAndSave(); 
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
-        console.log(`✅ Generated ${needed} initial articles`);
-      }
-    } catch (error) {
-      console.error("❌ Error ensuring minimum articles:", error);
+  /**
+   * Ensures a minimum number of articles exist by generating new ones if necessary.
+   * FIX: Calls Article.count() directly.
+   */
+  async ensureMinimumArticles(requiredCount) {
+    // FIX: Call the static count method from your Article Model
+    let currentCount = await Article.count(); 
+    let articlesToGenerate = requiredCount - currentCount;
+
+    console.log(`Need to generate ${articlesToGenerate} unique articles.`);
+
+    // Loop and generate unique articles until the minimum is met
+    for (let i = 0; i < articlesToGenerate; i++) {
+      // This ensures a unique article is generated per iteration.
+      await this.generateAndSave(); 
+      console.log(`Generated and saved article ${i + 1} of ${articlesToGenerate}.`);
     }
   }
 }
