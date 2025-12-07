@@ -59,3 +59,4 @@ echo "📊 Checking container status..."
 docker ps | grep -E "blog-backend|blog-frontend"
 
 
+

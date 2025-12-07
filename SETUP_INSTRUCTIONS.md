@@ -175,3 +175,4 @@ docker run -d --name postgres -e POSTGRES_PASSWORD=your_password -e POSTGRES_DB=
 - Or the app will create it automatically on first run (depends on PostgreSQL permissions)
 
 
+
