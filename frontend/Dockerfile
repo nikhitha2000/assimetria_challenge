@@ -1,6 +1,9 @@
 # Build stage
 FROM node:18-alpine as build
 
+# 1. ADD THIS LINE: Declare the build argument to accept the value from docker-compose.yml
+ARG REACT_APP_API_URL
+
 WORKDIR /app
 
 # Copy package files
@@ -12,8 +15,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the React app
-RUN npm run build
+# 2. CHANGE THIS LINE: Pass the build argument as an environment variable to the npm build command
+# If REACT_APP_API_URL is unset in the shell, it uses the default (http://localhost:5000) from docker-compose.yml
+RUN REACT_APP_API_URL=$REACT_APP_API_URL npm run build
 
 # Production stage
 FROM nginx:alpine
@@ -33,5 +37,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
-
-
