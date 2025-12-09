@@ -32,7 +32,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      FRONTEND_URL: http://13.200.243.112 
+      
     ports:
       - "5000:5000"
     depends_on:
@@ -43,11 +44,6 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        REACT_APP_API_URL: http://13.200.243.112:5000
     image: 021916846840.dkr.ecr.ap-south-1.amazonaws.com/blog-frontend:latest
     container_name: blog-frontend
     ports:
