@@ -21,9 +21,7 @@ services:
       - blog-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: 021916846840.dkr.ecr.ap-south-1.amazonaws.com/blog-backend:latest
     container_name: blog-backend
     environment:
       PORT: 5000
@@ -35,9 +33,7 @@ services:
       DB_PASSWORD: postgres
       HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
       
-      # FIX 1: Dynamic CORS Origin
-      # Defaults to localhost:3000 for local dev (CORS fix)
-      # Overridden by the .env file in production (http://13.200.243.112)
+      # The FRONTEND_URL environment variable remains to use the fixed value
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       
     ports:
@@ -50,18 +46,10 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        # FIX 2: Dynamic API URL for Frontend Build
-        # Defaults to http://localhost:5000 for local dev
-        # Overridden by the .env file in production (http://13.200.243.112:5000)
-        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:5000}
-        
+    image: 021916846840.dkr.ecr.ap-south-1.amazonaws.com/blog-frontend:latest
     container_name: blog-frontend
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - backend
     networks:
