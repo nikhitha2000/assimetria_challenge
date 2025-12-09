@@ -1,6 +1,6 @@
 require("dotenv").config();
 const AIClient = require("./aiClient");
-const Article = require("../models/Article"); // Your PostgreSQL model
+const Article = require("../models/Article");
 
 class ArticleGenerator {
   constructor() {
@@ -78,10 +78,9 @@ class ArticleGenerator {
 
   /**
    * Ensures a minimum number of articles exist by generating new ones if necessary.
-   * FIX: Calls Article.count() directly.
+   *
    */
   async ensureMinimumArticles(requiredCount) {
-    // FIX: Call the static count method from your Article Model
     let currentCount = await Article.count(); 
     let articlesToGenerate = requiredCount - currentCount;
 

@@ -34,8 +34,12 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
-      #FRONTEND_URL: http://localhost:3000
-      FRONTEND_URL: http://13.200.243.112
+      
+      # FIX 1: Dynamic CORS Origin
+      # Defaults to localhost:3000 for local dev (CORS fix)
+      # Overridden by the .env file in production (http://13.200.243.112)
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      
     ports:
       - "5000:5000"
     depends_on:
@@ -50,8 +54,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # REACT_APP_API_URL: http://localhost:5000
-        REACT_APP_API_URL: http://13.200.243.112:5000
+        # FIX 2: Dynamic API URL for Frontend Build
+        # Defaults to http://localhost:5000 for local dev
+        # Overridden by the .env file in production (http://13.200.243.112:5000)
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:5000}
+        
     container_name: blog-frontend
     ports:
       - "3000:80"
@@ -67,5 +74,3 @@ volumes:
 networks:
   blog-network:
     driver: bridge
-
-

@@ -3,11 +3,11 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: "us-east-1"
-    AWS_ACCOUNT_ID: "YOUR_ACCOUNT_ID"  # Replace with your AWS Account ID
+    AWS_ACCOUNT_ID: "021916846840"
     ECR_BACKEND_REPO: "blog-backend"
     ECR_FRONTEND_REPO: "blog-frontend"
   secrets-manager:
-    HUGGINGFACE_API_KEY: "blog/huggingface-api-key"  # Optional: Store in AWS Secrets Manager
+    HUGGINGFACE_API_KEY: "blog/huggingface-api-key" 
 
 phases:
   pre_build:
@@ -51,6 +51,3 @@ phases:
 artifacts:
   files:
     - imageTag.json
-
-
-
