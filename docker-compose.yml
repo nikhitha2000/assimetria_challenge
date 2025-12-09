@@ -32,10 +32,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
-      
-      # The FRONTEND_URL environment variable remains to use the fixed value
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      
     ports:
       - "5000:5000"
     depends_on:
