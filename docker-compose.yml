@@ -43,6 +43,11 @@ services:
     restart: unless-stopped
 
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: http://13.200.243.112:5000
     image: 021916846840.dkr.ecr.ap-south-1.amazonaws.com/blog-frontend:latest
     container_name: blog-frontend
     ports:
